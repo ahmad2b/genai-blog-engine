@@ -8,10 +8,10 @@ if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
   throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY env var')
 }
 
-const SUPABASE_URL = process.env.SUPABASE_URL as string
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY as string
+const supabaseUrl = process.env.SUPABASE_URL as string
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+export const supabase = createClient(supabaseUrl, supabaseKey)
 
 export async function getBlogById(id: number) {
   const { data, error } = await supabase

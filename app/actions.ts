@@ -2,6 +2,7 @@
 
 import { supabase } from '@/lib/supabase'
 import { decode } from 'base64-arraybuffer'
+import { redirect } from 'next/navigation'
 import OpenAI from 'openai'
 
 if (!process.env.OPENAI_API_KEY) {
@@ -45,7 +46,7 @@ export async function createCompletion(prompt: string) {
     response_format: 'b64_json'
   })
 
-  const imageName = `blog-${Date.now()}.png`
+  const imageName = `blog-${Date.now()}`
   const imageData = image?.data?.[0]?.b64_json as string
   if (!imageData) {
     return { error: 'Failed to generate blog image' }
@@ -54,7 +55,7 @@ export async function createCompletion(prompt: string) {
   // upload the image to supabase storage
 
   const { data, error } = await supabase.storage
-    .from('blogs')
+    .from('imageStorage')
     .upload(imageName, decode(imageData), {
       contentType: 'image/png'
     })
@@ -65,7 +66,7 @@ export async function createCompletion(prompt: string) {
 
   const path = data?.path
   const imageUrl = path
-    ? `${process.env.SUPABASE_URL}/storage/v1/object/blogs/${path}`
+    ? `${process.env.SUPABASE_URL}/storage/v1/object/public/imageStorage/${path}`
     : null
 
   //  create a new blog post in supabase
@@ -76,8 +77,8 @@ export async function createCompletion(prompt: string) {
       {
         title: prompt,
         content: content,
-        imageUrl: imageUrl
-        // userId: userId
+        imageUrl: imageUrl,
+        userId: '1234'
       }
     ])
     .select()
@@ -86,5 +87,7 @@ export async function createCompletion(prompt: string) {
     return { error: 'Failed to store blog post in the database' }
   }
 
-  console.log('blog', blog)
+  const blogId = blog?.[0]?.id
+
+  redirect(`/blog/${blogId}`)
 }

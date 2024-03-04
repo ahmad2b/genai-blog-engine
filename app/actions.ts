@@ -1,7 +1,9 @@
 'use server'
 
 import { supabase } from '@/lib/supabase'
+import { auth } from '@clerk/nextjs'
 import { decode } from 'base64-arraybuffer'
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import OpenAI from 'openai'
 
@@ -14,6 +16,11 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 export async function createCompletion(prompt: string) {
   if (!prompt) {
     return { error: 'Prompt is required' }
+  }
+
+  const { userId } = auth()
+  if (!userId) {
+    return { error: 'User is not logged in' }
   }
 
   // generate blog post using openai
@@ -78,7 +85,7 @@ export async function createCompletion(prompt: string) {
         title: prompt,
         content: content,
         imageUrl: imageUrl,
-        userId: '1234'
+        userId: userId
       }
     ])
     .select()
@@ -88,6 +95,8 @@ export async function createCompletion(prompt: string) {
   }
 
   const blogId = blog?.[0]?.id
+
+  revalidatePath(`/`)
 
   redirect(`/blog/${blogId}`)
 }

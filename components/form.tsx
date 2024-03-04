@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
+import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs'
 import { useFormStatus } from 'react-dom'
 import { toast } from 'sonner'
 
@@ -53,17 +54,17 @@ function SubmitButton() {
 
   return (
     <>
-      {/* <SignedIn> */}
-      <Button
-        size='sm'
-        type='submit'
-        className={cn('mt-3 w-full rounded-lg', pending && 'animate-pulse')}
-      >
-        {pending ? 'Working on it...' : 'Submit'}
-      </Button>
-      {/* </SignedIn> */}
+      <SignedIn>
+        <Button
+          size='sm'
+          type='submit'
+          className={cn('mt-3 w-full rounded-lg', pending && 'animate-pulse')}
+        >
+          {pending ? 'Working on it...' : 'Submit'}
+        </Button>
+      </SignedIn>
 
-      {/* <SignedOut>
+      <SignedOut>
         <SignInButton mode='modal'>
           <Button
             size='sm'
@@ -74,7 +75,7 @@ function SubmitButton() {
             Sign in to start
           </Button>
         </SignInButton>
-      </SignedOut> */}
+      </SignedOut>
     </>
   )
 }
